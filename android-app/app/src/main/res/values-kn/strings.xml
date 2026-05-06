@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">ಪರ್ಯಾವರಣ ಕಾವಲು</string>
+    <string name="new_report">ಹೊಸ ವರದಿ</string>
+    <string name="community_map">ಸಮುದಾಯ ನಕ್ಷೆ</string>
+    <string name="capture_photo">ಫೋಟೋ ತೆಗೆಯಿರಿ</string>
+    <string name="waste_type">ತ್ಯಾಜ್ಯದ ಪ್ರಕಾರ</string>
+    <string name="plastic">ಪ್ಲಾಸ್ಟಿಕ್</string>
+    <string name="organic">ಸಾವಯವ</string>
+    <string name="electronic">ಎಲೆಕ್ಟ್ರಾನಿಕ್</string>
+    <string name="submit">ಸಲ್ಲಿಸಿ</string>
+    <string name="mark_cleaned">ಸ್ವಚ್ಛಗೊಳಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ</string>
+    <string name="pending">ಬಾಕಿ ಇದೆ</string>
+    <string name="cleaned">ಸ್ವಚ್ಛವಾಗಿದೆ</string>
+    <string name="eco_karma">ಪರಿಸರ-ಕರ್ಮ: %d</string>
+    <string name="toggle_language">English</string>
+    <string name="syncing">ಡೇಟಾ ಸಿಂಕ್ ಆಗುತ್ತಿದೆ...</string>
+</resources>

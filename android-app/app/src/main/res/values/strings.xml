@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Paryavaran Kavalu</string>
+    <string name="new_report">New Report</string>
+    <string name="community_map">Community Map</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="waste_type">Waste Type</string>
+    <string name="plastic">Plastic</string>
+    <string name="organic">Organic</string>
+    <string name="electronic">Electronic</string>
+    <string name="submit">Submit</string>
+    <string name="mark_cleaned">Mark as Cleaned</string>
+    <string name="pending">Pending</string>
+    <string name="cleaned">Cleaned</string>
+    <string name="eco_karma">Eco-Karma: %d</string>
+    <string name="toggle_language">ಕನ್ನಡ</string>
+    <string name="syncing">Syncing Data...</string>
+</resources>
