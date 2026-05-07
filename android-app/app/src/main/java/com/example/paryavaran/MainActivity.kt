@@ -3,33 +3,36 @@ package com.example.paryavaran
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.paryavaran.data.*
 import com.example.paryavaran.ui.theme.ParyavaranKavaluTheme
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Handle permission results
-        }
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ -> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Request permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -39,11 +42,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ParyavaranKavaluTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation()
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    AppNavigation(
+                        onSubmit = { request ->
+                            lifecycleScope.launch {
+                                try {
+                                    RetrofitClient.instance.submitReport(request)
+                                    Toast.makeText(this@MainActivity, "Report Submitted!", Toast.LENGTH_SHORT).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -51,8 +62,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(onSubmit: (ReportRequest) -> Unit) {
     var currentScreen by remember { mutableStateOf("Map") }
+    var reports by remember { mutableStateOf<List<Report>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+
+    // Fetch reports when switching to Map
+    LaunchedEffect(currentScreen) {
+        if (currentScreen == "Map") {
+            try {
+                reports = RetrofitClient.instance.getReports()
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -74,15 +98,18 @@ fun AppNavigation() {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (currentScreen) {
-                "Map" -> MapScreen()
-                "Report" -> ReportScreen()
+                "Map" -> MapScreen(reports)
+                "Report" -> ReportScreen(onReportSubmitted = {
+                    onSubmit(it)
+                    currentScreen = "Map"
+                })
             }
         }
     }
 }
 
 @Composable
-fun MapScreen() {
+fun MapScreen(reports: List<Report>) {
     val bangalore = LatLng(12.9716, 77.5946)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(bangalore, 12f)
@@ -92,40 +119,60 @@ fun MapScreen() {
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
     ) {
-        // Mocking pins
-        Marker(
-            state = MarkerState(position = LatLng(12.97, 77.59)),
-            title = "Plastic Waste",
-            snippet = "Pending"
-        )
+        reports.forEach { report ->
+            Marker(
+                state = MarkerState(position = LatLng(report.latitude, report.longitude)),
+                title = report.wasteType,
+                snippet = "Status: ${report.status}"
+            )
+        }
     }
 }
 
 @Composable
-fun ReportScreen() {
+fun ReportScreen(onReportSubmitted: (ReportRequest) -> Unit) {
+    var wasteType by remember { mutableStateOf("Plastic") }
+    
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { /* Handle camera capture */ }) {
-            Text("Capture Photo")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        var wasteType by remember { mutableStateOf("Plastic") }
-        // Simple mock selection
+        Text("Report New Waste", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text("Select Waste Type:")
         Row {
-            Button(onClick = { wasteType = "Plastic" }) { Text("Plastic") }
+            FilterChip(
+                selected = wasteType == "Plastic",
+                onClick = { wasteType = "Plastic" },
+                label = { Text("Plastic") }
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { wasteType = "Organic" }) { Text("Organic") }
+            FilterChip(
+                selected = wasteType == "Organic",
+                onClick = { wasteType = "Organic" },
+                label = { Text("Organic") }
+            )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Selected: $wasteType")
+        
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = { /* Submit report */ }) {
-            Text("Submit Report")
+        
+        Button(
+            onClick = {
+                // Mocking current location for now
+                onReportSubmitted(
+                    ReportRequest(
+                        latitude = 12.97 + (Math.random() - 0.5) / 10,
+                        longitude = 77.59 + (Math.random() - 0.5) / 10,
+                        wasteType = wasteType,
+                        imageUrl = "https://example.com/mock.jpg"
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Submit Report to Backend")
         }
     }
 }

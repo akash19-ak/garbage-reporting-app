@@ -1,0 +1,18 @@
+R_DEF: Internal format may change without notice
+local
+string app_name
+string capture_photo
+string cleaned
+string community_map
+string eco_karma
+string electronic
+string mark_cleaned
+string new_report
+string organic
+string pending
+string plastic
+string submit
+string syncing
+string toggle_language
+string waste_type
+style Theme.ParyavaranKavalu

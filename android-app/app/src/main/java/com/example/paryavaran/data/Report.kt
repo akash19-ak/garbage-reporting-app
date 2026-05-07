@@ -1,7 +1,7 @@
 package com.example.paryavaran.data
 
 data class Report(
-    val id: Int = 0,
+    val id: Int? = null,
     val latitude: Double,
     val longitude: Double,
     val wasteType: String,
