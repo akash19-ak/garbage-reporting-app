@@ -16,3 +16,5 @@ string syncing
 string toggle_language
 string waste_type
 style Theme.ParyavaranKavalu
+xml backup_rules
+xml data_extraction_rules

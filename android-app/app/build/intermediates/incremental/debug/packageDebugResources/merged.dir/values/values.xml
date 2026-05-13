@@ -15,5 +15,5 @@
     <string name="syncing">Syncing Data...</string>
     <string name="toggle_language">ಕನ್ನಡ</string>
     <string name="waste_type">Waste Type</string>
-    <style name="Theme.ParyavaranKavalu" parent="android:Theme.Material.Light.NoActionBar"/>
+    <style name="Theme.ParyavaranKavalu" parent="Theme.Material3.DayNight.NoActionBar"/>
 </resources>
